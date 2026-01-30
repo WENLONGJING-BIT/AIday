@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>今日 · 缘分白板</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* 全局配色变量 - 乳白亮色系 */
+        :root {
+            --bg-color: #FDFCF8; /* 亮亮的乳白色背景 */
+            --card-bg: #FFFFFF;  /* 卡片纯白背景 */
+            --text-main: #2C1810; /* 深咖色主文字 */
+            --text-sub: #5D5D5D;  /* 深灰辅助文字 */
+            --btn-bg: #F7F7F2;    /* 按钮浅米色背景 */
+            --btn-active-bg: #F0E6D2; /* 按钮选中暖色 */
+            --btn-active-border: #4A2B18; /* 选中边框深咖 */
+            --primary-btn: #3E1E1E; /* 主按钮深红褐 */
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            /* 极淡的纹理，保持亮度 */
+            background-image: radial-gradient(#E0E0E0 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* 按钮点击反馈 */
+        .btn-press {
+            transition: transform 0.1s ease, opacity 0.2s;
+        }
+        .btn-press:active {
+            transform: scale(0.96);
+            opacity: 0.9;
+        }
+
+        /* 风格按钮样式 */
+        .style-btn {
+            background-color: var(--btn-bg);
+            border: 1.5px solid transparent;
+            color: #666;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            height: 100%; /* 确保高度填满 */
+            min-height: 80px; /* 稍微增加最小高度以适应更大的字体 */
+        }
+        .style-btn:hover {
+            background-color: #FFF;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .style-btn.active {
+            border-color: var(--btn-active-border);
+            background-color: var(--btn-active-bg);
+            color: var(--btn-active-border);
+            font-weight: 700;
+        }
+
+        /* 呼吸加载动画 */
+        .breathing-circle {
+            width: 60px; /* 稍微加大 */
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-btn);
+            opacity: 0.8;
+            animation: breathe 4s infinite ease-in-out; /* 调慢呼吸节奏 */
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* 图片浮现 */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4 sm:p-6 overflow-y-auto">
+
+    <!-- 主容器：大圆角卡片 -->
+    <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-white relative flex flex-col h-auto min-h-[600px] my-4 overflow-hidden">
+        
+        <!-- 顶部光影 - 更加透亮 -->
+        <div class="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-white to-transparent pointer-events-none z-10 opacity-80"></div>
+
+        <!-- 页面1：配置与生成 -->
+        <div id="mainContent" class="flex flex-col flex-grow relative z-0">
+            
+            <!-- 内容区：去除内部滚动 overflow-y-auto，让整体跟随页面滚动 -->
+            <div class="w-full p-6 pt-8 flex flex-col items-center">
+                
+                <!-- 图标 -->
+                <div class="mb-4 opacity-90 transform -rotate-12 mt-2">
+                    <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#4A2B18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+                        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+                        <path d="M2 2l7.586 7.586"></path>
+                        <circle cx="11" cy="11" r="2"></circle>
+                    </svg>
+                </div>
+
+                <!-- 标题 -->
+                <h1 class="text-3xl font-bold tracking-[0.2em] text-[#2C1810] mb-2 text-center">
+                    今日 · 缘分
+                </h1>
+
+                <!-- 说明 -->
+                <div class="text-center space-y-1 mb-8">
+                    <p class="text-[#5D5D5D] text-xs tracking-widest font-medium">每一次点击，都是独一无二的当下</p>
+                </div>
+
+                <!-- 风格选择 (4x4 Grid) -->
+                <div class="w-full">
+                    <p class="text-[10px] text-[#888] text-center mb-3 tracking-[0.15em] font-bold uppercase">选择明信片风格 (16选1)</p>
+                    <div class="grid grid-cols-4 gap-2">
+                        <!-- 第一行 -->
+                        <button onclick="selectStyle('draft')" id="btn-draft" class="style-btn active rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">📐</span><span class="text-xs font-bold">手稿</span>
+                        </button>
+                        <button onclick="selectStyle('sketch')" id="btn-sketch" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">✏️</span><span class="text-xs font-bold">素描</span>
+                        </button>
+                        <button onclick="selectStyle('crayon')" id="btn-crayon" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🎨</span><span class="text-xs font-bold">涂鸦</span>
+                        </button>
+                        <button onclick="selectStyle('comic')" id="btn-comic" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">💬</span><span class="text-xs font-bold">漫画</span>
+                        </button>
+
+                        <!-- 第二行 -->
+                        <button onclick="selectStyle('print')" id="btn-print" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">📰</span><span class="text-xs font-bold">印刷</span>
+                        </button>
+                        <button onclick="selectStyle('oil')" id="btn-oil" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🖼️</span><span class="text-xs font-bold">油画</span>
+                        </button>
+                        <button onclick="selectStyle('watercolor')" id="btn-watercolor" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">💧</span><span class="text-xs font-bold">水彩</span>
+                        </button>
+                        <button onclick="selectStyle('gouache')" id="btn-gouache" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🖌️</span><span class="text-xs font-bold">水粉</span>
+                        </button>
+
+                        <!-- 第三行 -->
+                        <button onclick="selectStyle('marker')" id="btn-marker" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🖍️</span><span class="text-xs font-bold">马克笔</span>
+                        </button>
+                        <button onclick="selectStyle('ink')" id="btn-ink" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">✒️</span><span class="text-xs font-bold">钢笔</span>
+                        </button>
+                        <button onclick="selectStyle('woodcut')" id="btn-woodcut" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🪵</span><span class="text-xs font-bold">木刻</span>
+                        </button>
+                        <button onclick="selectStyle('riso')" id="btn-riso" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🖨️</span><span class="text-xs font-bold">孔版</span>
+                        </button>
+
+                        <!-- 第四行 -->
+                        <button onclick="selectStyle('botanical')" id="btn-botanical" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🌿</span><span class="text-xs font-bold">植物志</span>
+                        </button>
+                        <button onclick="selectStyle('collage')" id="btn-collage" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">✂️</span><span class="text-xs font-bold">拼贴</span>
+                        </button>
+                        <button onclick="selectStyle('film')" id="btn-film" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🎞️</span><span class="text-xs font-bold">胶片</span>
+                        </button>
+                        <button onclick="selectStyle('wash')" id="btn-wash" class="style-btn rounded-xl flex flex-col items-center justify-center gap-1 btn-press">
+                            <span class="text-2xl">🎋</span><span class="text-xs font-bold">水墨</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部按钮区 -->
+            <div class="w-full p-6 mt-auto z-20">
+                <button onclick="generateDailyImage()" id="generateBtn" class="w-full bg-[#3E1E1E] hover:bg-[#502828] text-[#F9F7F0] py-4 rounded-2xl shadow-xl transition-all duration-300 flex items-center justify-center gap-3 tap-highlight-transparent btn-press group">
+                    <span class="text-yellow-300 text-lg group-hover:rotate-180 transition-transform duration-500">✦</span>
+                    <span class="text-lg font-bold tracking-[0.2em]">抽取今日缘分</span>
+                    <span class="text-yellow-300 text-lg group-hover:rotate-180 transition-transform duration-500">✦</span>
+                </button>
+                 <div class="mt-4 flex items-center justify-center w-full opacity-40">
+                    <div class="h-[1px] bg-gray-300 w-8"></div>
+                    <p class="text-[10px] uppercase tracking-[0.1em] font-sans text-[#666] mx-3 whitespace-nowrap">2026，思择平台与您一起启发</p>
+                    <div class="h-[1px] bg-gray-300 w-8"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页面2：结果展示 (全屏覆盖，无滚动条) -->
+        <div id="resultArea" class="hidden absolute inset-0 z-50 bg-[#FAFAFA] flex flex-col">
+            
+            <!-- 顶部工具栏 -->
+            <div class="flex-none h-14 flex items-center justify-between px-5 bg-white/80 backdrop-blur-md z-30 border-b border-gray-100">
+                <button onclick="resetApp()" class="flex items-center gap-1 text-gray-500 hover:text-gray-800 transition-colors">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span class="text-sm font-medium">返回</span>
+                </button>
+                <span id="displayDate" class="text-sm font-bold text-[#3E1E1E] tracking-widest font-serif"></span>
+                <div class="w-10"></div> <!-- 占位保持居中 -->
+            </div>
+
+            <!-- 核心内容区：图片展示 (自适应容器) -->
+            <div class="flex-grow flex items-center justify-center p-4 bg-[#F5F5F0] overflow-hidden relative">
+                
+                <!-- 加载状态：优化后的 UI -->
+                <div id="loadingState" class="absolute inset-0 z-10 bg-[#FAFAFA] flex flex-col items-center justify-center p-8">
+                    <div class="breathing-circle mb-10 shadow-xl shadow-red-900/10"></div> <!-- 增加间距 -->
+                    <p id="loadingTitle" class="text-[#2C1810] text-2xl font-bold tracking-[0.2em] mb-4">正在链接缘分...</p> <!-- 字体加大，间距加大 -->
+                    
+                    <!-- 修改后的加载文本: 呼应AI的动态文案 -->
+                    <p class="text-[#888] text-sm mb-12 tracking-widest font-light">这一分钟，可以专注呼吸，静下来</p>
+                    
+                    <div class="w-56 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div id="progressBar" class="h-full bg-[#3E1E1E] w-0 transition-all duration-300"></div>
+                    </div>
+                    <div class="mt-4 font-mono text-[10px] text-[#BBB] tracking-wider" id="timerDisplay">00.0s</div>
+                </div>
+
+                <!-- 图片容器：flex 居中，contain 缩放 -->
+                <div id="imageContainer" class="hidden w-full h-full flex flex-col items-center justify-center relative z-20">
+                     <!-- 核心：max-h-full 确保不溢出，object-contain 确保完整显示 -->
+                     <img id="generatedImage" src="" alt="今日白板" class="max-w-full max-h-full object-contain shadow-2xl rounded-lg fade-in" />
+                </div>
+            </div>
+
+            <!-- 底部操作栏 (固定) -->
+            <div id="resultActions" class="hidden flex-none p-5 bg-white border-t border-gray-100 shadow-[0_-10px_30px_rgba(0,0,0,0.03)] z-30 flex gap-3">
+                 <!-- 保存按钮 -->
+                 <a id="downloadLink" href="#" download="today_wisdom.png" class="flex-1 flex items-center justify-center gap-2 bg-[#3E1E1E] text-[#F9F7F0] py-3.5 rounded-xl shadow-lg font-bold tracking-wide hover:bg-[#502828] transition-colors btn-press">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    保存
+                 </a>
+                 
+                 <!-- 重抽按钮: 改为 onclick="resetApp()" 以返回首页 -->
+                 <button onclick="resetApp()" class="flex-none px-6 bg-[#F2F2F2] text-[#555] py-3.5 rounded-xl font-bold tracking-wide hover:bg-[#E5E5E5] transition-colors btn-press">
+                    再抽一张
+                 </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 逻辑处理 -->
+    <script>
+        // API 配置
+        const API_KEY = "sk-G7KvJXn1BP5ydrFlM9WF0RaRgv7CRY0nSFoZSTEIwjKjzMwD";
+        const BASE_URL = "https://new.12ai.org";
+        const MODEL = "gemini-3-pro-image-preview";
+
+        // 全局状态 - 默认为"手稿"
+        let currentStyle = 'draft'; 
+        let timerInterval;
+        let progressInterval;
+        let startTime;
+
+        // 风格配置 (16种明信片级风格)
+        const STYLE_CONFIG = {
+            'draft': { 
+                name: '手稿', 
+                desc: '【达芬奇式手稿】风格。背景为暖黄牛皮纸。使用精细的褐色墨水线条，带有工程辅助线、注解文字和测量数据。充满智慧和探索的复古质感。' 
+            },
+            'sketch': { 
+                name: '素描', 
+                desc: '【艺术素描】风格。使用炭笔或铅笔，注重光影关系和笔触的细腻度。纸张有明显的纹理。风格写实、质朴、有温度。' 
+            },
+            'crayon': { 
+                name: '涂鸦', 
+                desc: '【蜡笔涂鸦】风格。笔触粗糙、稚嫩，色彩饱和度高。像孩子在画纸上天马行空的创作，充满纯真、阳光和希望。' 
+            },
+            'comic': { 
+                name: '漫画', 
+                desc: '【复古漫画】风格。清晰的黑色轮廓线，配合Ben-Day波点（半调网点）上色。色彩鲜明，构图具有叙事性和镜头感。' 
+            },
+            'print': { 
+                name: '印刷', 
+                desc: '【复古海报印刷】风格。模仿旧报纸或复古广告的质感。色彩略有错位，有纸张的颗粒感和墨水的陈旧感。配色怀旧温暖。' 
+            },
+            'oil': { 
+                name: '油画', 
+                desc: '【印象派油画】风格。厚重的笔触堆叠（Impasto），色彩丰富且充满光感。模仿梵高或莫奈的用色，充满生命力和阳光。' 
+            },
+            'watercolor': { 
+                name: '水彩', 
+                desc: '【透明水彩】风格。颜料在纸上自然晕染，色彩清透、明亮、流动。留白自然，边缘柔和，充满诗意和呼吸感。' 
+            },
+            'gouache': { 
+                name: '水粉', 
+                desc: '【复古水粉插画】风格。色彩不透明，平涂为主，色块清晰。色彩复古且柔和（如韦斯·安德森电影配色）。画面像绘本插图。' 
+            },
+            'marker': { 
+                name: '马克笔', 
+                desc: '【马克笔速写】风格。笔触干练、果断，色彩叠加有透明感。像建筑师或设计师的草图，充满现代感和生活气息。' 
+            },
+            'ink': { 
+                name: '钢笔', 
+                desc: '【钢笔淡彩】风格。使用钢笔勾勒清晰的轮廓线条，配合淡淡的水彩上色。像旅行者的速写本，记录生活的瞬间。' 
+            },
+            'woodcut': { 
+                name: '木刻', 
+                desc: '【木刻版画】风格。线条刚硬有力，黑白对比强烈（或单色套印）。有刀刻的痕迹和木纹的质感，艺术感极强。' 
+            },
+            'riso': { 
+                name: '孔版', 
+                desc: '【孔版印刷 (Risograph)】风格。色彩鲜艳、有颗粒感。颜色之间有独特的叠加混合效果（如荧光粉配蓝）。复古又时髦。' 
+            },
+            'botanical': { 
+                name: '植物志', 
+                desc: '【复古植物科学绘】风格。精细的线条描绘植物花草的细节，配色典雅（复古绿、干花色）。像一本古老的百科全书插图。' 
+            },
+            'collage': { 
+                name: '拼贴', 
+                desc: '【复古拼贴艺术】风格。使用旧报纸、邮票、干花、手写信件等素材进行组合。肌理丰富，充满故事感和时光的痕迹。' 
+            },
+            'film': { 
+                name: '胶片', 
+                desc: '【胶片摄影】风格。模仿老式胶片相机的质感。有柔和的颗粒感、漏光效果和独特的胶片色偏。氛围感十足，充满回忆。' 
+            },
+            'wash': { 
+                name: '水墨', 
+                desc: '【新中式水墨】风格。使用墨色的浓淡干湿变化来造型。大量留白，意境深远。结合一点暖色点缀，不显冷清，只显雅致。' 
+            }
+        };
+
+        // --- 人生百态主题库 (Theme Pool) ---
+        const THEME_SEEDS = [
+            "自然的治愈力", "时间的相对性", "孤独的价值", "重逢的喜悦", "失去后的获得",
+            "微小的善意", "沉默的力量", "清晨的第一缕光", "旧物的温度", "错过的风景",
+            "原谅自己", "接纳不完美", "勇敢的尝试", "平静的告别", "瞬间的永恒",
+            "雨后的彩虹", "风的形状", "影子的游戏", "云的流浪", "树的年轮",
+            "窗外的世界", "镜中的自己", "书页的香气", "热茶的温度", "黄昏的宁静",
+            "星空的浩瀚", "海洋的呼吸", "山川的静默", "河流的奔腾", "花开的声音",
+            "童年的回忆", "未来的憧憬", "当下的觉知", "呼吸的节奏", "心跳的旋律",
+            "脚步的轻重", "眼神的交汇", "微笑的弧度", "泪水的重量", "拥抱的温暖",
+            "承诺的重量", "等待的意义", "出发的勇气", "归来的安宁", "旅途的风景",
+            "陌生的善意", "熟悉的温暖", "简单的快乐", "复杂的思考", "纯粹的直觉",
+            "逻辑的边界", "感性的流动", "理性的光芒", "混乱中的秩序", "秩序中的自由",
+            "束缚与解脱", "执着与放下", "拥有与失去", "瞬间与永恒", "微观与宏观",
+            "内在的宁静", "外在的喧嚣", "孤独与独处", "寂寞与自由", "爱与被爱",
+            "给予与接受", "倾听与表达", "观察与参与", "静止与流动", "黑暗与光明",
+            "寒冷与温暖", "坚硬与柔软", "粗糙与细腻", "简单与复杂", "平凡与伟大",
+            "渺小与浩瀚", "已知与未知", "确定与随机", "计划与变化", "梦想与现实",
+            "妥协与坚持", "脆弱与坚强", "恐惧与勇气", "悲伤与治愈", "焦虑与平和",
+            "愤怒与宽容", "嫉妒与欣赏", "傲慢与谦卑", "冷漠与热情", "怀疑与信任",
+            "疏离与连接", "封闭与开放", "停滞与成长", "枯萎与新生", "终结与开始"
+        ];
+
+        // 文案更新：与“专注呼吸”形成上下关联
+        const LOADING_TEXTS = [
+            "正在与您的呼吸同步...",
+            "正在倾听当下的宁静...",
+            "正在捕捉这一刻的平稳...",
+            "正在慢慢描绘时间的形状...",
+            "正在感受吸气与呼气的韵律...",
+            "正在等待心静的那一瞬...",
+            "正在让灵感自然浮现..."
+        ];
+
+        function selectStyle(styleKey) {
+            currentStyle = styleKey;
+            const buttons = document.querySelectorAll('.style-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.id === `btn-${styleKey}`) btn.classList.add('active');
+            });
+        }
+
+        function getTodayDateString() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}年${month}月${day}日`;
+        }
+
+        function getRandomElement(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        // --- 核心 Prompt ---
+        function getPrompt() {
+            const dateStr = getTodayDateString();
+            const stylePrompt = STYLE_CONFIG[currentStyle].desc;
+            const timestamp = Date.now(); 
+            const randomTheme = getRandomElement(THEME_SEEDS);
+            
+            return `
+            (Context: Current Timestamp ${timestamp}, Random Seed: ${randomTheme})
+            
+            **Mission**: You are Nano Banana Pro, an AI mentor with deep wisdom. 
+            **Date**: ${dateStr}.
+
+            **Theme of the Moment**:
+            I have selected a random theme for this specific generation: **"${randomTheme}"**.
+            Use this theme as a starting point, but feel free to interpret it metaphorically, visually, or philosophically.
+
+            **Core Philosophy (Theravāda Roots)**:
+            Your wisdom is grounded in the core insights of Theravāda Buddhism (Anicca, Dukkha, Anatta, Sati).
+            
+            **Key Content Directives**:
+            - **No Religious Jargon**: Do not use technical Buddhist terms.
+            - **Big Plain Talk**: Speak simply, warmly, and directly, like a wise friend.
+            - **Format**: A "Golden Sentence" (short, punchy, under 50 chars).
+
+            **Visual Direction (Postcard Aesthetic)**:
+            - **Color Palette**: Be creative and diverse! While I prefer warm, sunny, and bright colors (Gold, Orange, Cream, Soft Pink) to convey hope, you have the FREEDOM to choose ANY color palette that fits your specific imagined scenario and the theme "${randomTheme}", as long as the overall *vibe* remains uplifting or peaceful.
+            - **Mood**: Hopeful, Uplifting, Peaceful, Healing.
+            - **Intelligence**: Use your artistic judgment.
+            - **Style Reference**: ${stylePrompt}
+            - **Composition**: Must look like a high-quality artistic postcard.
+
+            **Task**: 
+            1. Reflect on the theme "${randomTheme}" in the context of today.
+            2. Extract a wisdom insight from it.
+            3. Translate that insight into "Big Plain Talk".
+            4. Create a vertical (9:16) illustration.
+            
+            **Text in Image**: 
+            1. You MUST write the generated "Golden Sentence" AND the date 【${dateStr}】 legibly in the image using a handwritten style.
+            2. **CRITICAL LANGUAGE RULE**: All visible text in the image MUST be in **Simplified Chinese** (简体中文). Do NOT write any English or other languages.
+
+            Now, generate a unique, diverse, and hopeful image for today based on the theme "${randomTheme}".
+            `;
+        }
+
+        function startLoadingAnimation() {
+            startTime = Date.now();
+            const timerDisplay = document.getElementById('timerDisplay');
+            const progressBar = document.getElementById('progressBar');
+            const loadingTitle = document.getElementById('loadingTitle');
+            let progress = 0;
+            
+            loadingTitle.innerText = getRandomElement(LOADING_TEXTS);
+            timerDisplay.innerText = "00.0s";
+            progressBar.style.width = "0%";
+
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const diff = (now - startTime) / 1000;
+                timerDisplay.innerText = diff.toFixed(1) + "s";
+            }, 100);
+
+            progressInterval = setInterval(() => {
+                // 模拟进度条，前期快后期慢
+                if (progress < 60) progress += Math.random() * 2 + 1;
+                else if (progress < 85) progress += Math.random() * 0.5;
+                else if (progress < 95) progress += 0.1;
+                
+                if (progress > 98) progress = 98;
+                progressBar.style.width = progress + "%";
+            }, 200);
+        }
+
+        function stopLoadingAnimation(isSuccess) {
+            clearInterval(timerInterval);
+            clearInterval(progressInterval);
+            if (isSuccess) document.getElementById('progressBar').style.width = "100%";
+        }
+
+        async function generateDailyImage() {
+            const resultArea = document.getElementById('resultArea');
+            const imageContainer = document.getElementById('imageContainer');
+            const resultActions = document.getElementById('resultActions');
+            const loadingState = document.getElementById('loadingState');
+
+            // 界面切换
+            resultArea.classList.remove('hidden');
+            loadingState.classList.remove('hidden');
+            imageContainer.classList.add('hidden');
+            resultActions.classList.add('hidden');
+
+            const dateStr = getTodayDateString();
+            document.getElementById('displayDate').innerText = dateStr;
+
+            startLoadingAnimation();
+
+            const url = `${BASE_URL}/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+            const payload = {
+                contents: [{ parts: [{ text: getPrompt() }] }],
+                generationConfig: {
+                    responseModalities: ["IMAGE"],
+                    imageConfig: { aspectRatio: "9:16", imageSize: "4K" }
+                }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error(`API Error: ${response.status}`);
+
+                const data = await response.json();
+
+                if (data.candidates && data.candidates[0].content.parts[0].inlineData) {
+                    stopLoadingAnimation(true);
+                    const base64Data = data.candidates[0].content.parts[0].inlineData.data;
+                    const mimeType = data.candidates[0].content.parts[0].inlineData.mimeType || 'image/png';
+                    const imageUrl = `data:${mimeType};base64,${base64Data}`;
+
+                    // 图片加载完成后显示
+                    const imgElement = document.getElementById('generatedImage');
+                    imgElement.onload = () => {
+                        loadingState.classList.add('hidden');
+                        imageContainer.classList.remove('hidden');
+                        resultActions.classList.remove('hidden');
+                    };
+                    imgElement.src = imageUrl;
+                    
+                    const dlLink = document.getElementById('downloadLink');
+                    dlLink.href = imageUrl;
+                    dlLink.download = `今日缘分_${dateStr}_${Date.now()}.png`;
+                } else {
+                    throw new Error("生成失败，请重试");
+                }
+            } catch (error) {
+                console.error(error);
+                stopLoadingAnimation(false);
+                alert("连接失败，请检查网络或重试。");
+                resetApp();
+            }
+        }
+
+        function resetApp() {
+            clearInterval(timerInterval);
+            clearInterval(progressInterval);
+            document.getElementById('resultArea').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
